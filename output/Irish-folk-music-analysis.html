@@ -20,7 +20,6 @@
   <meta name="author" content="Gremlin">
   <meta name="description" content="Posts and writings by Gremlin">
 
-  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Gremlin's Home Atom" />
 
 <meta name="keywords" content="music, tunes">
 
@@ -244,7 +243,7 @@
 <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">"figure.figsize"</span><span class="p">:</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">)})</span> 
 <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"abc"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"id"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">joinData</span><span class="p">,</span> <span class="n">scatter_kws</span><span class="o">=</span><span class="p">{</span><span class="s2">"s"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>  <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">})</span> 
 </pre></div>
-<p><img alt="png" src="failte_files/failte_9_0.png"/></p>
+<p><img alt="png" src="images/failte_9_0.png"/></p>
 <div class="highlight"><pre><span></span><span class="n">jigdf</span> <span class="o">=</span> <span class="p">(</span><span class="n">tuneData</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tuneData</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span><span class="o">==</span><span class="s1">'reel'</span><span class="p">])</span>
 </pre></div>
 <div class="highlight"><pre><span></span><span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'G,'</span><span class="p">,</span> <span class="s1">'A,'</span><span class="p">,</span> <span class="s1">'B,'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">,</span> <span class="s1">'G'</span><span class="p">,</span> <span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'c'</span><span class="p">,</span> <span class="s1">'d'</span><span class="p">,</span> <span class="s1">'e'</span><span class="p">,</span> <span class="s1">'f'</span><span class="p">,</span> <span class="s1">'g'</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'c</span><span class="se">\'</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'d</span><span class="se">\'</span><span class="s1">'</span><span class="p">]</span> 
@@ -602,7 +601,7 @@ dtype: int64
 <div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">"figure.figsize"</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">)})</span> 
 <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">df3</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> 
 </pre></div>
-<p><img alt="png" src="failte_files/failte_27_0.png"/></p>
+<p><img alt="png" src="images/failte_27_0.png"/></p>
 <div class="highlight"><pre><span></span><span class="n">df3</span>
 </pre></div>
 <div>
@@ -823,11 +822,6 @@ dtype: int64
             <li><a href="http://getpelican.com/" title="Pelican"><i class="fab fa-link"></i></a></li>
             <li><a href="http://python.org/" title="Python.org"><i class="fab fa-link"></i></a></li>
             <li><a href="http://jinja.pocoo.org/" title="Jinja2"><i class="fab fa-link"></i></a></li>
-            <li>
-              <a href="/feeds/all.atom.xml" target="_blank" title="Feed">
-                <i class="fas fa-rss-square"></i>
-              </a>
-            </li>
           </ul>
         </div>
       </section>

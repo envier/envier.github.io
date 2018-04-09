@@ -244,7 +244,7 @@ ax = sns.regplot(x="abc", y="id", data=joinData, scatter_kws={"s": 100,  "alpha"
 ```
 
 
-![png](failte_files/failte_9_0.png)
+![png](images/failte_9_0.png)
 
 
 
@@ -671,7 +671,7 @@ ax = sns.heatmap(df3, linewidths=1, cmap="Blues", vmin=-1)
 ```
 
 
-![png](failte_files/failte_27_0.png)
+![png](images/failte_27_0.png)
 
 
 
