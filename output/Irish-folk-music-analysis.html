@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/">
+  <link rel="stylesheet" type="text/css" href="/theme/css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto+Mono">
+  <link rel="stylesheet" type="text/css" href="/theme/css/fontawesome-all.min.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/hatena-bookmark-icon.css">
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gremlin">
+  <meta name="description" content="Posts and writings by Gremlin">
+
+
+<meta name="keywords" content="music, tunes">
+
+  <title>
+    Gremlin's Home
+&ndash; Irish Folk Music Analysis  </title>
+
+</head>
+
+<body>
+  <main>
+    <header>
+      <div class="site-name">
+        <a href="">Gremlin's Home</a>
+      </div>
+      <p>
+        <a href="/archives.html"><i class="fab fas-archive"></i> Archive</a>
+      </p>
+    </header>
+
+<article>
+  <div class="article__title">
+    <h1><a href="/Irish-folk-music-analysis.html">Irish Folk Music Analysis</a></h1>
+  </div>
+  <div class="article__meta">
+    <p class="article__meta__post-date">Posted on: Mon 09 April 2018</p>
+ Tags:
+      <a href="/tag/music.html">#music</a>,      <a href="/tag/tunes.html">#tunes</a>    </p>
+  </div>
+  <div class="article__text">
+    <div class="highlight"><pre><span></span><span class="c1"># All the library imports </span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span> 
+<span class="kn">import</span> <span class="nn">re</span> 
+<span class="kn">import</span> <span class="nn">itertools</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="c1"># All the settings  </span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">'display.max_colwidth'</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> 
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">'ignore'</span><span class="p">)</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="c1"># Get the tune, recordjing and alias data into dataframes </span>
+<span class="n">tuneData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="s1">'/data/tunes.json'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">tuneData</span><span class="p">))</span>
+
+<span class="n">aliasData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="s1">'/data/aliases.json'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">aliasData</span><span class="p">))</span>
+
+<span class="n">recordData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="s1">'/data/recordings.json'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">recordData</span><span class="p">))</span> 
+</pre></div>
+<div class="highlight"><pre><span></span>&lt;class 'pandas.core.frame.DataFrame'&gt;
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+</pre></div>
+<div class="highlight"><pre><span></span><span class="c1"># Print out some rows </span>
+<span class="n">tuneData</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> 
+</pre></div>
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>abc</th>
+<th>date</th>
+<th>meter</th>
+<th>mode</th>
+<th>name</th>
+<th>setting</th>
+<th>tune</th>
+<th>type</th>
+<th>username</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>dBB B2 A BAG|dBB Bcd efg|dBB B2 A BAG| eAA dBG A2 e| \r\ndBB B2 A BAG|dBB Bcd efg|dBB B2 A BAG| eAA dBG A2 A|\r\nBAB g2 e fed|BAB e/f/g e f2 A|BAB g2 e fed|eAA ABd e2 A|\r\nBAB g2 e fed|BAB e/f/g e f2 f|def gfe fed |eAA ABd efg|</td>
+<td>2012-05-16 23:49:26</td>
+<td>9/8</td>
+<td>Gmajor</td>
+<td>'G Iomain Nan Gamhna</td>
+<td>11931</td>
+<td>11931</td>
+<td>slip jig</td>
+<td>iliketurtles</td>
+</tr>
+<tr>
+<th>1</th>
+<td>|: G&gt;A B&gt;G c&gt;A B&gt;G | E&lt;E A&gt;G F&lt;D D2 | G&gt;A B&gt;G c&gt;A B&gt;G | E&gt;A F&gt;D G2 G2 :|\r\n|: D&gt;D D&gt;D (3DDD D&gt;D | d&gt;B A&gt;B G&lt;E E2 | D&gt;D D&gt;D (3DDD D&gt;D | d&gt;B A&gt;B G2 G2 :|</td>
+<td>2016-03-31 07:34:45</td>
+<td>4/4</td>
+<td>Gmajor</td>
+<td>'S Ann An Ìle</td>
+<td>28560</td>
+<td>15326</td>
+<td>strathspey</td>
+<td>Daniel Quayle</td>
+</tr>
+<tr>
+<th>2</th>
+<td>uD2|:{F}v[G,2G2]uB&gt;ud c&gt;A B&gt;G|{D}E2 uA&gt;uG F&lt;D D&gt;F|{F}[G,2G2]uB&gt;ud c&gt;A B&gt;G|[1E&gt;A F&lt;D {F}G2 uG&gt;uD:|[2E&gt;A F&lt;D {F}G2 (G&gt;E)|\r\nD&gt;D D&gt;B, D&gt;D D&gt;(B|d&gt;B) A&gt;B G&lt;E E&gt;G|D&gt;D D&gt;B, D&gt;D D&gt;(B|[1d&gt;B) A&lt;B {F}G2 G&gt;E:|[2d&gt;B) A&lt;B {F}G2||</td>
+<td>2016-04-03 01:15:08</td>
+<td>4/4</td>
+<td>Gmajor</td>
+<td>'S Ann An Ìle</td>
+<td>28582</td>
+<td>15326</td>
+<td>strathspey</td>
+<td>DonaldK</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="highlight"><pre><span></span><span class="n">recordData</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> 
+</pre></div>
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>artist</th>
+<th>field10</th>
+<th>field11</th>
+<th>field8</th>
+<th>field9</th>
+<th>id</th>
+<th>number</th>
+<th>recording</th>
+<th>track</th>
+<th>tune</th>
+<th>tune_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>1651</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>3720</td>
+<td>1</td>
+<td>Cast A Bell</td>
+<td>1</td>
+<td>Kettledrum</td>
+<td>14408</td>
+</tr>
+<tr>
+<th>1</th>
+<td>1651</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>3720</td>
+<td>1</td>
+<td>Cast A Bell</td>
+<td>2</td>
+<td>Maiden Lane</td>
+<td>13727</td>
+</tr>
+<tr>
+<th>2</th>
+<td>1651</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>3720</td>
+<td>2</td>
+<td>Cast A Bell</td>
+<td>2</td>
+<td>Chirping Of The Nightingale</td>
+<td>NULL</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="highlight"><pre><span></span><span class="n">numSettings</span> <span class="o">=</span> <span class="n">tuneData</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'tune'</span><span class="p">])[</span><span class="s1">'abc'</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"tune"</span><span class="p">:</span> <span class="s2">"tune_id"</span><span class="p">})</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">numRecordings</span> <span class="o">=</span> <span class="n">recordData</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'tune_id'</span><span class="p">])[</span><span class="s1">'id'</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">numRecordings</span> <span class="o">=</span> <span class="n">numRecordings</span><span class="p">[</span><span class="n">numRecordings</span><span class="o">.</span><span class="n">tune_id</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">())]</span> 
+<span class="n">numRecordings</span><span class="p">[[</span><span class="s1">'tune_id'</span><span class="p">]]</span> <span class="o">=</span> <span class="n">numRecordings</span><span class="p">[[</span><span class="s1">'tune_id'</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">joinData</span> <span class="o">=</span> <span class="n">numSettings</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">numRecordings</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'tune_id'</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">'tune_id'</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">'any'</span><span class="p">)</span>  
+</pre></div>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span><span class="p">;</span> <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">color_codes</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> 
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span> 
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">"figure.figsize"</span><span class="p">:</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">)})</span> 
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"abc"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"id"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">joinData</span><span class="p">,</span> <span class="n">scatter_kws</span><span class="o">=</span><span class="p">{</span><span class="s2">"s"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>  <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">})</span> 
+</pre></div>
+<p><img alt="png" src="failte_files/failte_9_0.png"/></p>
+<div class="highlight"><pre><span></span><span class="n">jigdf</span> <span class="o">=</span> <span class="p">(</span><span class="n">tuneData</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tuneData</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span><span class="o">==</span><span class="s1">'reel'</span><span class="p">])</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'G,'</span><span class="p">,</span> <span class="s1">'A,'</span><span class="p">,</span> <span class="s1">'B,'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">,</span> <span class="s1">'G'</span><span class="p">,</span> <span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'c'</span><span class="p">,</span> <span class="s1">'d'</span><span class="p">,</span> <span class="s1">'e'</span><span class="p">,</span> <span class="s1">'f'</span><span class="p">,</span> <span class="s1">'g'</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'c</span><span class="se">\'</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'d</span><span class="se">\'</span><span class="s1">'</span><span class="p">]</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">rep</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+    <span class="n">rep</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="s2">"2"</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="n">rep</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="s2">"3"</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="n">rep</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="s2">"4"</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">4</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">rep</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rep</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+<span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">jigdf</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">'(?:[{</span><span class="se">\"</span><span class="s1">]{1,2}\w*[}</span><span class="se">\"</span><span class="s1">]{1,2})'</span><span class="p">,</span> <span class="s1">''</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+    <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">'[^a-gA-G,:|</span><span class="se">\'</span><span class="s1">]'</span><span class="p">,</span> <span class="s1">''</span><span class="p">,</span> <span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">rep</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))],</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">jigdf</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">'abc1'</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">pattern1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[|:]{0,2}(?:[a-gA-G][,</span><span class="se">\'</span><span class="s1">\s]{0,2}){3}(?:[a-gA-G][,</span><span class="se">\'</span><span class="s1">\s]{0,2}){3}[:|]{0,2}'</span><span class="p">)</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">jigdf</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">basic</span> <span class="o">=</span> <span class="s1">''</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> 
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern1</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span> <span class="p">:</span>
+        <span class="n">basic</span> <span class="o">=</span> <span class="n">basic</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">'[^a-gA-G,</span><span class="se">\'</span><span class="s1">]'</span><span class="p">,</span> <span class="s1">''</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"|"</span> 
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="n">jigdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">'basic'</span><span class="p">]</span> <span class="o">=</span> <span class="n">basic</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">jigdf</span><span class="p">[</span><span class="n">jigdf</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"Kesh, The"</span><span class="p">)</span><span class="o">&amp;</span><span class="n">jigdf</span><span class="p">[</span><span class="s1">'mode'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"Gmajor"</span><span class="p">)]</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> 
+</pre></div>
+<div class="highlight"><pre><span></span>abc         8
+date        8
+meter       8
+mode        8
+name        8
+setting     8
+tune        8
+type        8
+username    8
+abc1        8
+basic       8
+dtype: int64
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df1</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s1">'basic'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">num</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">();</span>
+
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> 
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+    <span class="n">num</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">num</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">num</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+<span class="n">pattern_num</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">num</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">df1</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span>       0  1  2   3  4  5  6   7   8   9 ...  46  47  48  49  50  51  52  53  \
+14690  7  7  7  7   8  9  |  8   8   8  ...  11  11  |   9   8   6   7   7    
+14692  7  7  7  7   8  9  |  8   8   8  ...  11  9   |   9   9   9   11  9    
+14696  7  7  4  7   8  9  |  8   8   7  ...  11  9   |   9   9   8   7   7    
+14697  7  7  7  7   7  8  |  8   8   8  ...  14  11  |   8   7   6   7   7    
+14698  7  7  7  7   8  9  |  8   8   8  ...  11  9   |   10  8   6   7   7    
+14699  9  7  7  11  7  7  |  12  14  12 ...  14  15  |   16  14  14  14  14   
+14700  7  7  7  7   8  9  |  8   9   8  ...  11  9   |   9   9   9   11  9    
+14701  7  7  7  7   8  9  |  8   8   8  ...  11  9   |   8   7   6   7   7
+
+       54  55  
+14690  7   |   
+14692  10  |   
+14696  7   |   
+14697  8   |   
+14698  7   |   
+14699  11  |   
+14700  11  |   
+14701  4   |
+
+[8 rows x 56 columns]
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df2</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">([</span><span class="s1">'number'</span><span class="p">])</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df2</span>
+</pre></div>
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>...</th>
+<th>39</th>
+<th>42</th>
+<th>43</th>
+<th>44</th>
+<th>45</th>
+<th>50</th>
+<th>52</th>
+<th>56</th>
+<th>57</th>
+<th>60</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>4456</th>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>...</td>
+<td>7</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>9</td>
+<td>8</td>
+<td>8</td>
+<td>4.0</td>
+<td>5.0</td>
+<td>9.0</td>
+</tr>
+<tr>
+<th>4457</th>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>15</td>
+<td>13</td>
+<td>15</td>
+<td>16</td>
+<td>15</td>
+<td>14</td>
+<td>12</td>
+<td>...</td>
+<td>11</td>
+<td>7</td>
+<td>9</td>
+<td>11</td>
+<td>14</td>
+<td>8</td>
+<td>8</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>4459</th>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>...</td>
+<td>9</td>
+<td>8</td>
+<td>8</td>
+<td>5</td>
+<td>5</td>
+<td>9</td>
+<td>8</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>4460</th>
+<td>10</td>
+<td>10</td>
+<td>8</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>...</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>5</td>
+<td>9</td>
+<td>15</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>4461</th>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>9</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>5</td>
+<td>...</td>
+<td>11</td>
+<td>11</td>
+<td>12</td>
+<td>14</td>
+<td>15</td>
+<td>10</td>
+<td>10</td>
+<td>11.0</td>
+<td>12.0</td>
+<td>16.0</td>
+</tr>
+<tr>
+<th>4462</th>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>...</td>
+<td>15</td>
+<td>15</td>
+<td>13</td>
+<td>14</td>
+<td>12</td>
+<td>8</td>
+<td>8</td>
+<td>6.0</td>
+<td>7.0</td>
+<td>11.0</td>
+</tr>
+<tr>
+<th>4464</th>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>...</td>
+<td>11</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>9</td>
+<td>8</td>
+<td>8</td>
+<td>5.0</td>
+<td>3.0</td>
+<td>10.0</td>
+</tr>
+<tr>
+<th>4466</th>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>...</td>
+<td>7</td>
+<td>7</td>
+<td>5</td>
+<td>4</td>
+<td>9</td>
+<td>8</td>
+<td>8</td>
+<td>5.0</td>
+<td>7.0</td>
+<td>4.0</td>
+</tr>
+<tr>
+<th>12959</th>
+<td>8</td>
+<td>8</td>
+<td>8</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>8</td>
+<td>8</td>
+<td>8</td>
+<td>15</td>
+<td>...</td>
+<td>15</td>
+<td>14</td>
+<td>13</td>
+<td>12</td>
+<td>12</td>
+<td>15</td>
+<td>15</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+<p>9 rows × 31 columns</p>
+</div>
+<div class="highlight"><pre><span></span><span class="n">df3</span><span class="o">=</span><span class="n">df2</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">value_counts</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">"figure.figsize"</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">)})</span> 
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">df3</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> 
+</pre></div>
+<p><img alt="png" src="failte_files/failte_27_0.png"/></p>
+<div class="highlight"><pre><span></span><span class="n">df3</span>
+</pre></div>
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>...</th>
+<th>44</th>
+<th>45</th>
+<th>46</th>
+<th>47</th>
+<th>49</th>
+<th>50</th>
+<th>51</th>
+<th>52</th>
+<th>53</th>
+<th>54</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>4</th>
+<td>7.0</td>
+<td>2.0</td>
+<td>7.0</td>
+<td>7.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>...</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>7.0</td>
+<td>7.0</td>
+<td>7.0</td>
+</tr>
+<tr>
+<th>5</th>
+<td>0.0</td>
+<td>5.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>6.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>...</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<th>7</th>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>6.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>2.0</td>
+<td>0.0</td>
+<td>...</td>
+<td>7.0</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<th>8</th>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>7.0</td>
+<td>5.0</td>
+<td>7.0</td>
+<td>...</td>
+<td>0.0</td>
+<td>7.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<th>9</th>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>...</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<th>10</th>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>...</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+<p>6 rows × 48 columns</p>
+</div>
+<div class="highlight"><pre><span></span><span class="n">df1</span> <span class="o">=</span> <span class="n">jigdf</span><span class="p">[</span><span class="s1">'basic'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df2</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">([</span><span class="s1">'number'</span><span class="p">])</span> 
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">df3</span><span class="o">=</span><span class="n">df2</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">value_counts</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+  </div>
+
+</article>
+
+
+  </main>
+    <footer>
+      <div class="author__logo">
+          <img src="/theme/images/logo.png" alt="logo">
+      </div>
+      <section class="author">
+        <div class="author__name">
+          <a href="/pages/about.html">Gremlin</a>
+          <p></p>
+        </div>
+        <div class="author__link">
+          <ul>
+            <li><a href="http://getpelican.com/" title="Pelican"><i class="fab fa-link"></i></a></li>
+            <li><a href="http://python.org/" title="Python.org"><i class="fab fa-link"></i></a></li>
+            <li><a href="http://jinja.pocoo.org/" title="Jinja2"><i class="fab fa-link"></i></a></li>
+          </ul>
+        </div>
+      </section>
+      <div class="ending-message">
+        <p>&copy; Gremlin. Powered by <a href="http://getpelican.com" target="_blank">Pelican</a>, Theme is using <a href="https://github.com/laughk/pelican-hss" target="_blank">HSS</a>. </p>
+      </div>
+    </footer>
+</body>
+</html>
